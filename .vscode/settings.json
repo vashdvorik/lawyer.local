@@ -1,0 +1,5 @@
+{
+    "terminal.integrated.env.windows": {
+        "PATH": "D:\\OSPanel\\modules\\PHP-8.4\\PHP;${env:PATH}"
+    }
+}
