@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -24,6 +26,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'is_admin',
+        'avatar',
     ];
 
     /**
@@ -46,6 +50,15 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
+    }
+
+    /**
+     * Determine if the user can access the Filament panel.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return (bool) $this->is_admin;
     }
 }

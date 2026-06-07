@@ -18,7 +18,7 @@
                 <div class="row">
                     <div class="col-lg-4">
                         <div class="profile-avatar">
-                            <img src="{{ asset('assets/images/profile/1.png') }}" alt="profile">
+                            <img src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('assets/images/profile/1.png') }}" alt="profile">
                         </div>
                     </div>
                     <div class="col-lg-8 pl-50 md-pl-15 md-mt-60">

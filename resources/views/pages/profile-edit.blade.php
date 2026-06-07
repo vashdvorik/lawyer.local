@@ -26,10 +26,28 @@
                     <div class="profile-edit-box mb-4">
                         <h2 class="mb-4">Редактировать профиль</h2>
                         
-                        <form method="POST" action="{{ route('profile.update') }}">
+                        <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             
+                            <div class="form-group mb-3">
+                                <label for="avatar" class="d-block mb-2">Фото профиля</label>
+                                @if($user->avatar)
+                                    <div class="mb-2">
+                                        <img src="{{ asset('storage/' . $user->avatar) }}" alt="avatar" style="max-height: 100px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                    </div>
+                                @endif
+                                <input type="file" 
+                                       class="form-control @error('avatar') is-invalid @enderror" 
+                                       id="avatar" 
+                                       name="avatar" 
+                                       accept="image/*"
+                                       style="padding: 12px 20px; line-height: 1.5;">
+                                @error('avatar')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="form-group mb-3">
                                 <label for="name">Имя</label>
                                 <input type="text" 
