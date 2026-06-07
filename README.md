@@ -1,59 +1,253 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Юридический портал (Lawyer.Local)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Веб-платформа для юридических услуг с административной панелью на базе Laravel 12 + Filament 3.
 
-## About Laravel
+## 📋 О проекте
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Платформа включает:
+- **Публичный сайт** — информационный портал для пользователей
+- **Админ-панель** — управление контентом через Filament (/admin)
+- **Аутентификация** — регистрация, вход, подтверждение email, восстановление пароля
+- **Русская локализация** — все системные сообщения и ошибки валидации на русском языке
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Технологический стек
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **PHP 8.4.1** с strict types
+- **Laravel 12.60.2** — backend framework
+- **Filament v4.0.0** — admin panel
+- **MySQL** — база данных (lowyer @ 127.127.126.31:3306)
+- **Bootstrap 5** — frontend
+- **Livewire v3.8.0** — динамические компоненты
 
-## Learning Laravel
+## 📁 Структура проекта
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```
+app/
+├── Http/Controllers/
+│   ├── PageController.php              # Публичные страницы (главная, вход, регистрация)
+│   └── Auth/
+│       ├── AuthController.php          # Аутентификация (вход, регистрация, выход)
+│       ├── EmailVerificationController.php  # Подтверждение email
+│       └── PasswordResetController.php      # Восстановление пароля
+├── Models/
+│   └── User.php                        # Модель пользователя (с MustVerifyEmail)
+└── Providers/
+    └── AppServiceProvider.php
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+resources/views/
+├── layouts/
+│   ├── app.blade.php                   # Основной layout
+│   └── partials/
+│       ├── header.blade.php            # Шапка сайта
+│       └── footer.blade.php            # Подвал сайта
+├── pages/
+│   ├── index.blade.php                 # Главная страница
+│   ├── login.blade.php                 # Страница входа
+│   └── signup.blade.php                # Страница регистрации
+└── auth/
+    ├── verify-email.blade.php          # Уведомление о подтверждении email
+    ├── forgot-password.blade.php       # Запрос сброса пароля
+    └── reset-password.blade.php        # Установка нового пароля
 
-## Laravel Sponsors
+routes/
+└── web.php                             # Все маршруты приложения
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+database/
+├── migrations/                         # Миграции БД
+├── factories/                          # Фабрики для тестов
+└── seeders/                            # Сидеры
+```
 
-### Premium Partners
+## ⚙️ Установка и настройка
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 1. Клонирование и установка зависимостей
 
-## Contributing
+```bash
+composer install
+npm install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 2. Настройка окружения
 
-## Code of Conduct
+Скопируйте `.env.example` в `.env` и настройте:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```env
+APP_NAME=Lawyer
+APP_URL=http://127.0.0.1:8000
 
-## Security Vulnerabilities
+DB_CONNECTION=mysql
+DB_HOST=127.127.126.31
+DB_PORT=3306
+DB_DATABASE=lowyer
+DB_USERNAME=root
+DB_PASSWORD=
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+MAIL_MAILER=log
+MAIL_FROM_ADDRESS="hello@example.com"
+```
 
-## License
+### 3. Генерация ключа
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan key:generate
+```
+
+### 4. Миграции
+
+```bash
+php artisan migrate
+```
+
+### 5. Публикация Filament assets
+
+```bash
+php artisan filament:assets
+```
+
+### 6. Создание администратора
+
+```bash
+php artisan make:filament-user
+```
+
+### 7. Запуск сервера
+
+```bash
+php artisan serve
+```
+
+Приложение будет доступно по адресу: http://127.0.0.1:8000
+
+## 🔑 Основные маршруты
+
+### Публичные страницы
+- `/` — Главная страница
+- `/login` — Вход
+- `/signup` — Регистрация
+
+### Админ-панель
+- `/admin` — Административная панель Filament
+- `/admin/login` — Вход в админ-панель
+
+### Email Verification
+- `/email/verify` — Уведомление о необходимости подтверждения
+- `/email/verify/{id}/{hash}` — Подтверждение email
+- `/email/verification-notification` — Повторная отправка письма
+
+### Password Reset
+- `/forgot-password` — Запрос сброса пароля
+- `/reset-password/{token}` — Установка нового пароля
+
+## 📧 Email Verification & Password Reset
+
+### Быстрый старт
+
+См. [QUICKSTART_EMAIL.md](QUICKSTART_EMAIL.md) для:
+- Пошаговой инструкции по тестированию
+- Настройки SMTP (Mailtrap, Gmail)
+- Примеров команд для просмотра логов
+
+### Полная документация
+
+См. [EMAIL_PASSWORD_GUIDE.md](EMAIL_PASSWORD_GUIDE.md) для:
+- Подробного описания процессов
+- Кастомизации шаблонов
+- Настроек безопасности
+- FAQ и troubleshooting
+
+## 🎨 Дизайн
+
+Дизайн основан на шаблоне "Dlear Education" (адаптирован под юридическую тематику):
+- Адаптивная вёрстка
+- Bootstrap 5 компоненты
+- Иконки и графика
+- Формы поиска услуг
+
+См. [DESIGN_GUIDE.md](DESIGN_GUIDE.md) для подробностей.
+
+## 🏗️ Архитектура
+
+Проект следует принципам чистого Laravel:
+
+1. **Контроллеры** — только маршрутизация и ответы
+2. **Модели** — Eloquent ORM с явными связями
+3. **Views** — Blade шаблоны без бизнес-логики
+4. **Form Requests** — валидация и авторизация запросов
+5. **Middleware** — авторизация, CSRF, throttling
+
+См. [STRUCTURE.md](STRUCTURE.md) для подробного описания.
+
+## 🧪 Тестирование
+
+```bash
+# Запуск всех тестов
+php artisan test
+
+# Проверка стиля кода
+vendor/bin/pint --test
+
+# Автоисправление стиля
+vendor/bin/pint
+```
+
+## 🛠️ Полезные команды
+
+```bash
+# Очистка кэша
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
+
+# Просмотр маршрутов
+php artisan route:list
+
+# Просмотр логов
+Get-Content storage/logs/laravel.log -Tail 50
+
+# Информация о приложении
+php artisan about
+```
+
+## 📖 Документация
+
+- [STRUCTURE.md](STRUCTURE.md) — Архитектура приложения
+- [DESIGN_GUIDE.md](DESIGN_GUIDE.md) — Руководство по дизайну
+- [EMAIL_PASSWORD_GUIDE.md](EMAIL_PASSWORD_GUIDE.md) — Email и пароли (полная версия)
+- [QUICKSTART_EMAIL.md](QUICKSTART_EMAIL.md) — Быстрый старт для email/пароля
+- [LOCALIZATION_RU.md](LOCALIZATION_RU.md) — Русская локализация
+
+## 🔒 Безопасность
+
+- ✅ CSRF защита на всех формах
+- ✅ Rate limiting (6 попыток/минуту)
+- ✅ Подписанные URLs для верификации
+- ✅ Bcrypt хеширование паролей
+- ✅ Email verification для новых пользователей
+- ✅ Защита от brute-force атак
+
+## 📝 Стиль кода
+
+Проект использует [Laravel Pint](https://laravel.com/docs/pint) для code style:
+- PSR-12 стандарт
+- Настройки в `pint.json`
+- Автоматическое форматирование
+
+1. Следуйте стилю кода (Laravel Pint)
+2. Пишите тесты для новых функций
+3. Обновляйте документацию
+4. Создавайте Pull Request с описанием изменений
+
+## 📄 Лицензия
+
+Проект использует Laravel framework под лицензией [MIT](https://opensource.org/licenses/MIT).
+
+## 📞 Контакты
+
+При возникновении вопросов или проблем создайте Issue в репозитории.
+
+---
+
+**Версия проекта:** 1.0.0  
+**Последнее обновление:** 2025-01-21  
+**Laravel:** 12.60.2 | **PHP:** 8.4.1 | **Filament:** v4.0.0
