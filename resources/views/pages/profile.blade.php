@@ -42,6 +42,44 @@
                         </div>
                     </div>
                 </div>
+
+                @if (isset($courses) && $courses->isNotEmpty())
+                    <section class="student-courses">
+                        <h2>Мои курсы</h2>
+                
+                        @foreach ($courses as $course)
+                            <article class="student-course">
+                                <h3>{{ $course->title }}</h3>
+                
+                                @foreach ($course->materials as $material)
+                                    <div class="course-material">
+                                        <h4>{{ $material->title }}</h4>
+                                        <p class="course-material__description">{{ $material->description }}</p>
+                
+                                        @if ($material->external_url)
+                                            <a
+                                                href="{{ $material->external_url }}"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                Открыть материал
+                                            </a>
+                                        @endif
+                
+                                        @if ($material->file_path)
+                                            <a
+                                                href="{{ asset('storage/' . $material->file_path) }}"
+                                                download="{{ $material->original_file_name }}"
+                                            >
+                                                Скачать документ
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </article>
+                        @endforeach
+                    </section>
+                @endif
             </div>
         </div>
         <!--================= Profile Section End Here ================= -->
@@ -100,6 +138,69 @@
 .back-btn svg {
     width: 16px;
     height: 16px;
+}
+
+.student-courses {
+    margin-top: 60px;
+    border-top: 1px solid #eee;
+    padding-top: 40px;
+}
+
+.student-courses h2 {
+    font-size: 32px;
+    margin-bottom: 30px;
+}
+
+.student-course {
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.student-course h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+}
+
+.course-material {
+    background: #fff;
+    border-left: 4px solid #f84e77;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.course-material h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.course-material__description {
+    white-space: pre-line;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.course-material a {
+    display: inline-block;
+    margin-right: 15px;
+    color: #fff;
+    background: #f84e77;
+    padding: 8px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.course-material a:hover {
+    background: #e03a63;
+    color: #fff;
 }
 </style>
 @endpush

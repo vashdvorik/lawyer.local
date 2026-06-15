@@ -6,7 +6,9 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -79,7 +81,7 @@ class ProfileTest extends TestCase
 
         $response->assertRedirect(route('profile.show'));
         $response->assertSessionHas('success');
-        
+
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'name' => 'New Name',
@@ -158,12 +160,12 @@ class ProfileTest extends TestCase
      */
     public function test_user_can_upload_avatar(): void
     {
-        \Illuminate\Support\Facades\Storage::fake('public');
+        Storage::fake('public');
 
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $file = \Illuminate\Http\UploadedFile::fake()->image('avatar.jpg', 600, 600);
+        $file = UploadedFile::fake()->image('avatar.jpg', 600, 600);
 
         $response = $this->put(route('profile.update'), [
             'name' => $user->name,
@@ -173,14 +175,14 @@ class ProfileTest extends TestCase
 
         $response->assertRedirect(route('profile.show'));
         $user = $user->fresh();
-        
+
         $this->assertNotNull($user->avatar);
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'avatar' => $user->avatar,
         ]);
 
-        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($user->avatar);
+        Storage::disk('public')->assertExists($user->avatar);
     }
 
     /**
@@ -188,20 +190,20 @@ class ProfileTest extends TestCase
      */
     public function test_old_avatar_is_deleted_when_new_avatar_is_uploaded(): void
     {
-        \Illuminate\Support\Facades\Storage::fake('public');
+        Storage::fake('public');
 
         $user = User::factory()->create();
         $this->actingAs($user);
 
         // First upload
-        $oldFile = \Illuminate\Http\UploadedFile::fake()->image('old_avatar.jpg');
+        $oldFile = UploadedFile::fake()->image('old_avatar.jpg');
         $oldPath = $oldFile->store('avatars', 'public');
         $user->update(['avatar' => $oldPath]);
 
-        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($oldPath);
+        Storage::disk('public')->assertExists($oldPath);
 
         // Second upload
-        $newFile = \Illuminate\Http\UploadedFile::fake()->image('new_avatar.jpg');
+        $newFile = UploadedFile::fake()->image('new_avatar.jpg');
         $response = $this->put(route('profile.update'), [
             'name' => $user->name,
             'email' => $user->email,
@@ -212,7 +214,7 @@ class ProfileTest extends TestCase
         $user = $user->fresh();
 
         $this->assertNotEquals($oldPath, $user->avatar);
-        \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($oldPath);
-        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($user->avatar);
+        Storage::disk('public')->assertMissing($oldPath);
+        Storage::disk('public')->assertExists($user->avatar);
     }
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -16,11 +17,11 @@ return new class extends Migration
         });
 
         // Сделать существующих пользователей администраторами
-        \Illuminate\Support\Facades\DB::table('users')
+        DB::table('users')
             ->whereIn('email', [
                 'granat.agcy@gmail.com',
                 'kinokaef@gmail.com',
-                'plitkaatop@gmail.com'
+                'plitkaatop@gmail.com',
             ])
             ->update(['is_admin' => true]);
     }

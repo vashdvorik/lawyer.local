@@ -4,20 +4,32 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password as PasswordRule;
+use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
     /**
      * Отображение профиля пользователя
      */
-    public function show()
+    public function show(Request $request): View
     {
+        $user = $request->user();
+
+        $courses = Course::query()
+            ->availableTo($user)
+            ->with('materials')
+            ->orderBy('title')
+            ->get();
+
         return view('pages.profile', [
-            'user' => Auth::user(),
+            'user' => $user,
+            'courses' => $courses,
         ]);
     }
 
@@ -40,7 +52,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'avatar' => ['nullable', 'image', 'max:20480'], // до 20 МБ
         ]);
 
@@ -52,14 +64,14 @@ class ProfileController extends Controller
         if ($request->hasFile('avatar')) {
             // Удалить старый аватар при его наличии
             if ($user->avatar) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+                Storage::disk('public')->delete($user->avatar);
             }
 
             // Сохранить новый аватар
             $path = $request->file('avatar')->store('avatars', 'public');
-            
+
             // Сжать изображение
-            $absolutePath = storage_path('app/public/' . $path);
+            $absolutePath = storage_path('app/public/'.$path);
             $this->resizeAndCompressImage($absolutePath);
 
             $data['avatar'] = $path;
@@ -76,7 +88,7 @@ class ProfileController extends Controller
      */
     private function resizeAndCompressImage(string $filePath, int $maxWidth = 400, int $quality = 75): void
     {
-        if (!extension_loaded('gd')) {
+        if (! extension_loaded('gd')) {
             return;
         }
 
@@ -85,7 +97,7 @@ class ProfileController extends Controller
             return;
         }
 
-        list($width, $height, $type) = $imageInfo;
+        [$width, $height, $type] = $imageInfo;
 
         switch ($type) {
             case IMAGETYPE_JPEG:
@@ -104,14 +116,14 @@ class ProfileController extends Controller
                 return;
         }
 
-        if (!$srcImage) {
+        if (! $srcImage) {
             return;
         }
 
         // 1. Исправление ориентации по метаданным EXIF (только для JPEG)
         if ($type === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
             $exif = @exif_read_data($filePath);
-            if ($exif && !empty($exif['Orientation'])) {
+            if ($exif && ! empty($exif['Orientation'])) {
                 switch ($exif['Orientation']) {
                     case 3:
                         $srcImage = imagerotate($srcImage, 180, 0);
@@ -154,7 +166,7 @@ class ProfileController extends Controller
             'x' => $x,
             'y' => $y,
             'width' => $cropWidth,
-            'height' => $cropHeight
+            'height' => $cropHeight,
         ]);
 
         if ($croppedImage !== false) {
