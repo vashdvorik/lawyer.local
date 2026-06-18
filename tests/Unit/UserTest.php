@@ -8,6 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -35,6 +36,19 @@ class UserTest extends TestCase
     }
 
     /**
+     * Test that blocked admin cannot access Filament panel.
+     */
+    public function test_can_access_panel_returns_false_for_blocked_admin(): void
+    {
+        $user = User::factory()->create([
+            'is_admin' => true,
+            'blocked_at' => now(),
+        ]);
+
+        $this->assertFalse($user->canAccessPanel(filament()->getPanel('admin')));
+    }
+
+    /**
      * Test that is_admin is cast to boolean.
      */
     public function test_is_admin_is_cast_to_boolean(): void
@@ -43,6 +57,27 @@ class UserTest extends TestCase
 
         $this->assertTrue($user->is_admin);
         $this->assertIsBool($user->is_admin);
+    }
+
+    /**
+     * Test that blocked_at is cast to datetime.
+     */
+    public function test_blocked_at_is_cast_to_datetime(): void
+    {
+        $user = User::factory()->create(['blocked_at' => '2026-06-18 12:00:00']);
+
+        $this->assertInstanceOf(Carbon::class, $user->blocked_at);
+        $this->assertSame('2026-06-18 12:00:00', $user->blocked_at->format('Y-m-d H:i:s'));
+    }
+
+    /**
+     * Test that blocked helper returns true for blocked user.
+     */
+    public function test_is_blocked_returns_true_for_blocked_user(): void
+    {
+        $user = User::factory()->blocked()->create();
+
+        $this->assertTrue($user->isBlocked());
     }
 
     /**
@@ -117,5 +152,23 @@ class UserTest extends TestCase
         $user = User::factory()->unverified()->create();
 
         $this->assertNull($user->email_verified_at);
+    }
+
+    /**
+     * Test that deleting user removes avatar file.
+     */
+    public function test_user_deleting_removes_avatar_file(): void
+    {
+        Storage::fake('public');
+
+        Storage::disk('public')->put('avatars/test.jpg', 'avatar-data');
+
+        $user = User::factory()->create([
+            'avatar' => 'avatars/test.jpg',
+        ]);
+
+        $user->delete();
+
+        Storage::disk('public')->assertMissing('avatars/test.jpg');
     }
 }

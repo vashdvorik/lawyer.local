@@ -91,4 +91,20 @@ class CourseMaterialFileTest extends TestCase
         $this->assertFalse(Storage::disk('public')->exists($path1));
         $this->assertFalse(Storage::disk('public')->exists($path2));
     }
+
+    public function test_material_can_be_created_without_description(): void
+    {
+        $course = Course::factory()->create();
+
+        $material = CourseMaterial::factory()->create([
+            'course_id' => $course->id,
+            'description' => null,
+        ]);
+
+        $this->assertNull($material->description);
+        $this->assertDatabaseHas('course_materials', [
+            'id' => $material->id,
+            'description' => null,
+        ]);
+    }
 }

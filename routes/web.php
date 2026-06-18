@@ -18,7 +18,7 @@ Route::post('/signup', [AuthController::class, 'signupPost']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Верификация email
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'not_blocked'])->group(function () {
     Route::get('/email/verify', [EmailVerificationController::class, 'notice'])
         ->name('verification.notice');
 

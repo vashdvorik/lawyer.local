@@ -23,15 +23,6 @@
                             <li class="{{ request()->routeIs('home') ? 'active' : '' }}">
                                 <a href="{{ route('home') }}">Главная</a>
                             </li>
-                            <li>
-                                <a href="#">О нас</a>
-                            </li>
-                            <li>
-                                <a href="#">Услуги</a>
-                            </li>
-                            <li>
-                                <a href="#">Контакты</a>
-                            </li>
                         </ul>
                         
                         <div class="searchbar-part">

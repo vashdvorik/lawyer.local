@@ -87,6 +87,27 @@ class AuthTest extends TestCase
     }
 
     /**
+     * Test that blocked user cannot login.
+     */
+    public function test_blocked_user_cannot_login(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+            'blocked_at' => now(),
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'john@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertSessionHasErrors(['email']);
+        $this->assertFalse(Auth::check());
+        $this->assertFalse($user->fresh()->canAccessPanel(filament()->getPanel('admin')));
+    }
+
+    /**
      * Test login failure with incorrect credentials.
      */
     public function test_user_cannot_login_with_incorrect_credentials(): void
@@ -116,6 +137,21 @@ class AuthTest extends TestCase
         $response = $this->post(route('logout'));
 
         $response->assertRedirect(route('home'));
+        $this->assertFalse(Auth::check());
+    }
+
+    /**
+     * Test that blocked authenticated user is redirected away from protected pages.
+     */
+    public function test_blocked_user_is_redirected_from_protected_pages(): void
+    {
+        $user = User::factory()->blocked()->create();
+        $this->actingAs($user);
+
+        $response = $this->get(route('profile.show'));
+
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('error');
         $this->assertFalse(Auth::check());
     }
 

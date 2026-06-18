@@ -17,7 +17,7 @@ class CourseMaterialFactory extends Factory
         return [
             'course_id' => Course::factory(),
             'title' => $this->faker->sentence(),
-            'description' => $this->faker->paragraph(),
+            'description' => $this->faker->optional()->paragraph(),
             'external_url' => $this->faker->optional()->url(),
             'file_path' => $this->faker->optional()->filePath(),
             'original_file_name' => $this->faker->optional()->word().'.pdf',

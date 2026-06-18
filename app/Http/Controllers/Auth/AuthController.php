@@ -23,6 +23,16 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        $user = User::query()
+            ->where('email', $credentials['email'])
+            ->first();
+
+        if ($user?->isBlocked()) {
+            return back()->withErrors([
+                'email' => 'Ваш аккаунт заблокирован. Обратитесь к администратору.',
+            ])->onlyInput('email');
+        }
+
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
