@@ -17,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class MaterialsRelationManager extends RelationManager
 {
@@ -33,55 +34,7 @@ class MaterialsRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema
-            ->components([
-                TextInput::make('title')
-                    ->label('Название')
-                    ->required()
-                    ->maxLength(255),
-
-                Textarea::make('description')
-                    ->label('Описание')
-                    ->nullable()
-                    ->required(false)
-                    ->markAsRequired(false)
-                    ->rows(5)
-                    ->columnSpanFull(),
-
-                TextInput::make('external_url')
-                    ->label('Внешняя ссылка')
-                    ->url()
-                    ->rules(['starts_with:http://,https://'])
-                    ->maxLength(2048),
-
-                FileUpload::make('file_path')
-                    ->label('Файл')
-                    ->disk('public')
-                    ->directory('course-materials')
-                    ->visibility('public')
-                    ->storeFileNamesIn('original_file_name')
-                    ->rules([
-                        'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,jpg,jpeg,png,webp,zip,rar,7z',
-                    ])
-                    ->acceptedFileTypes([
-                        'application/pdf',
-                        'application/msword',
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        'application/vnd.ms-excel',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'application/vnd.ms-powerpoint',
-                        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                        'text/plain',
-                        'application/rtf',
-                        'image/jpeg',
-                        'image/png',
-                        'image/webp',
-                        'application/zip',
-                        'application/x-rar-compressed',
-                        'application/x-7z-compressed',
-                    ])
-                    ->maxSize(20480)
-                    ->downloadable(),
-            ]);
+            ->components($this->getMaterialFormSchema());
     }
 
     public function table(Table $table): Table
@@ -109,7 +62,41 @@ class MaterialsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()
+                    ->modalWidth('5xl')
+                    ->form($this->getMaterialFormSchema(multipleFiles: true))
+                    ->using(function (array $data): Model {
+                        $filePaths = array_values(array_filter((array) ($data['file_path'] ?? [])));
+                        $fileNames = (array) ($data['original_file_name'] ?? []);
+
+                        unset($data['file_path'], $data['original_file_name']);
+
+                        if ($filePaths === []) {
+                            return $this->getOwnerRecord()
+                                ->materials()
+                                ->create([
+                                    ...$data,
+                                    'file_path' => null,
+                                    'original_file_name' => null,
+                                ]);
+                        }
+
+                        $firstRecord = null;
+
+                        foreach ($filePaths as $filePath) {
+                            $record = $this->getOwnerRecord()
+                                ->materials()
+                                ->create([
+                                    ...$data,
+                                    'file_path' => $filePath,
+                                    'original_file_name' => $fileNames[$filePath] ?? basename($filePath),
+                                ]);
+
+                            $firstRecord ??= $record;
+                        }
+
+                        return $firstRecord;
+                    }),
             ])
             ->actions([
                 EditAction::make(),
@@ -120,5 +107,72 @@ class MaterialsRelationManager extends RelationManager
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    private function getMaterialFormSchema(bool $multipleFiles = false): array
+    {
+        $fileUpload = FileUpload::make('file_path')
+            ->label($multipleFiles ? 'Файлы' : 'Файл')
+            ->disk('public')
+            ->directory('course-materials')
+            ->visibility('public')
+            ->storeFileNamesIn('original_file_name')
+            ->rules([
+                'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,jpg,jpeg,png,webp,zip,rar,7z',
+            ])
+            ->acceptedFileTypes([
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'text/plain',
+                'application/rtf',
+                'image/jpeg',
+                'image/png',
+                'image/webp',
+                'application/zip',
+                'application/x-rar-compressed',
+                'application/x-7z-compressed',
+            ])
+            ->maxSize(20480)
+            ->downloadable()
+            ->columnSpanFull();
+
+        if ($multipleFiles) {
+            $fileUpload
+                ->multiple()
+                ->appendFiles()
+                ->maxFiles(50)
+                ->maxParallelUploads(5)
+                ->panelLayout('grid')
+                ->imagePreviewHeight('160px')
+                ->helperText('Можно перетащить сразу несколько файлов. Для каждого файла будет создан отдельный материал с этим названием и описанием.');
+        }
+
+        return [
+            TextInput::make('title')
+                ->label('Название')
+                ->required()
+                ->maxLength(255),
+
+            Textarea::make('description')
+                ->label('Описание')
+                ->nullable()
+                ->required(false)
+                ->markAsRequired(false)
+                ->rows(5)
+                ->columnSpanFull(),
+
+            TextInput::make('external_url')
+                ->label('Внешняя ссылка')
+                ->url()
+                ->rules(['starts_with:http://,https://'])
+                ->maxLength(2048),
+
+            $fileUpload,
+        ];
     }
 }
