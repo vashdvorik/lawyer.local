@@ -42,6 +42,8 @@ class MaterialsRelationManager extends RelationManager
                 Textarea::make('description')
                     ->label('Описание')
                     ->nullable()
+                    ->required(false)
+                    ->markAsRequired(false)
                     ->rows(5)
                     ->columnSpanFull(),
 
