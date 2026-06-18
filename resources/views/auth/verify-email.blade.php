@@ -17,25 +17,22 @@
                         </div>
                         
                         <h2 class="text-center mb-4">Подтвердите ваш email</h2>
-                        
-                        @if(session('success'))
-                            <div class="alert alert-success">
-                                {{ session('success') }}
-                            </div>
-                        @endif
 
                         <div class="alert alert-info">
                             <p class="mb-0">
-                                Мы отправили письмо для подтверждения на ваш email. Если не получили, нажмите кнопку ниже.
+                                Мы отправили письмо для подтверждения на ваш email. Если не получили, нажмите кнопку ниже. Также попробуйте проверить папку "Спам" или "Промоакции".
                             </p>
                         </div>
 
                         <form method="POST" action="{{ route('verification.send') }}" class="mt-4">
                             @csrf
-                            <div class="text-center">
+                            <div class="text-center d-flex justify-content-center gap-3">
                                 <button type="submit" class="back-btn">
                                     Отправить письмо повторно
                                 </button>
+                                <a href="{{ route('profile.show') }}" class="back-btn" style="text-decoration:none;">
+                                    Войти в кабинет
+                                </a>
                             </div>
                         </form>
 
