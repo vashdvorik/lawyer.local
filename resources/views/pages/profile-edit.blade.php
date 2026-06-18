@@ -32,11 +32,9 @@
                             
                             <div class="form-group mb-3">
                                 <label for="avatar" class="d-block mb-2">Фото профиля</label>
-                                @if($user->avatar)
-                                    <div class="mb-2">
-                                        <img src="{{ asset('storage/' . $user->avatar) }}" alt="avatar" style="max-height: 100px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                                    </div>
-                                @endif
+                                <div class="mb-2">
+                                    <img src="{{ route('profile.avatar', $user) }}" alt="avatar" style="max-height: 100px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                </div>
                                 <input type="file" 
                                        class="form-control @error('avatar') is-invalid @enderror" 
                                        id="avatar" 

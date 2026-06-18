@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -31,6 +32,18 @@ class ProfileController extends Controller
             'user' => $user,
             'courses' => $courses,
         ]);
+    }
+
+    /**
+     * Выдача аватара пользователя без зависимости от storage symlink
+     */
+    public function avatar(User $user)
+    {
+        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            return Storage::disk('public')->response($user->avatar);
+        }
+
+        return response()->file(public_path('assets/images/profile/1.png'));
     }
 
     /**

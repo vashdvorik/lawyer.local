@@ -186,6 +186,27 @@ class ProfileTest extends TestCase
     }
 
     /**
+     * Test that avatar route serves the uploaded image without storage symlink.
+     */
+    public function test_avatar_route_serves_uploaded_image(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $file = UploadedFile::fake()->image('avatar.jpg', 600, 600);
+        $path = $file->store('avatars', 'public');
+
+        $user->update(['avatar' => $path]);
+
+        $response = $this->get(route('profile.avatar', $user));
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'image/jpeg');
+    }
+
+    /**
      * Test that old avatar is deleted when new avatar is uploaded.
      */
     public function test_old_avatar_is_deleted_when_new_avatar_is_uploaded(): void
