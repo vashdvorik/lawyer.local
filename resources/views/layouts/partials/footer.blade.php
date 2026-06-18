@@ -54,7 +54,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-3">
+                <div class="col-lg-3" id="access">
                     <div class="footer-widget footer-widget-3">
                         <h3 class="footer-title">Доступ</h3>
                         <div class="footer-menu">

@@ -36,12 +36,12 @@ class MaterialsRelationManager extends RelationManager
             ->components([
                 TextInput::make('title')
                     ->label('Название')
-                    ->nullable()
+                    ->required()
                     ->maxLength(255),
 
                 Textarea::make('description')
                     ->label('Описание')
-                    ->required()
+                    ->nullable()
                     ->rows(5)
                     ->columnSpanFull(),
 

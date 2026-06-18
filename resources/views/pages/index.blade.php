@@ -36,7 +36,7 @@
                                     <span>24/7</span>
                                 </div>
                                 <div class="hero3__image-course-2">
-                                    <span>Доступ к материалам</span>
+                                    <span>Доступ</span>
                                 </div>
                             </div>
                         </div>
